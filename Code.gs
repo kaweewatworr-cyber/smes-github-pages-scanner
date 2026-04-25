@@ -27,7 +27,7 @@ const CONFIG = {
   registrationPrefix: 'ADAP26',
   qrSize: 240,
   subjectPrefix: '[ยืนยันการลงทะเบียน]',
-  frontendBaseUrl: '',
+  frontendBaseUrl: 'https://kaweewatworr-cyber.github.io/smes-github-pages-scanner/',
   checkinWebAppUrl: '',
   defaultCheckedInBy: 'Staff'
 };
