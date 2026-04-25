@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SMEs QR Scanner</title>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="card scanner-card" id="scannerCard" data-state="idle">
+      <div class="eyebrow">QR Check-in</div>
+      <h1>สแกน QR เพื่อเช็กอิน</h1>
+      <p class="lead">ยกกล้องไปที่ QR ระบบจะตรวจสอบและบันทึกให้อัตโนมัติ</p>
+
+      <div class="system-meta" id="systemMeta" hidden>
+        <span class="meta-pill" id="systemNamePill">ยังไม่เชื่อมต่อระบบ</span>
+        <span class="meta-pill" id="eventDetailsPill">รอข้อมูลอีเวนต์</span>
+        <span class="meta-pill" id="staffNamePill" hidden>Staff</span>
+      </div>
+
+      <div class="statusbar" aria-live="polite">
+        <span class="status-badge idle" id="statusBadge">พร้อมเริ่ม</span>
+        <span class="status-hint" id="statusHint">กดเริ่มสแกนเพื่อเปิดกล้อง</span>
+        <span class="status-system idle" id="systemStatus">ยังไม่ได้ตั้งค่าระบบ</span>
+      </div>
+
+      <div class="launch-panel" id="launchPanel" hidden>
+        <div class="launch-header">
+          <div>
+            <div class="fallback-title">ลิงก์พร้อมใช้งาน</div>
+            <div class="muted compact">ส่งลิงก์นี้ให้ทีมหน้างานเพื่อเปิดใช้ระบบได้ทันทีโดยไม่ต้องวาง URL ใหม่</div>
+          </div>
+        </div>
+
+        <label class="sr-only" for="launchLinkInput">ลิงก์พร้อมใช้งาน</label>
+        <input id="launchLinkInput" type="text" readonly />
+
+        <div class="launch-actions">
+          <button class="secondary" id="copyLaunchLinkBtn" type="button">คัดลอกลิงก์</button>
+          <button class="ghost" id="shareLaunchLinkBtn" type="button">แชร์ลิงก์</button>
+        </div>
+
+        <div id="shareMessage" aria-live="polite"></div>
+      </div>
+
+      <div class="primary-actions">
+        <button class="primary primary-lg" id="startBtn" type="button">เริ่มสแกน QR</button>
+        <button class="secondary" id="stopBtn" type="button" disabled>หยุดสแกน</button>
+      </div>
+
+      <div class="scanner-shell">
+        <div id="reader"></div>
+        <div class="scanner-guidance">วาง QR ให้อยู่ในกรอบและถือให้นิ่ง</div>
+      </div>
+
+      <div id="message" aria-live="assertive"></div>
+      <div id="result" aria-live="polite"></div>
+
+      <div class="confirmation-panel" id="confirmationPanel" hidden>
+        <div class="fallback-header">
+          <div class="fallback-title">ตรวจสอบข้อมูลก่อนเช็กอิน</div>
+          <div class="muted compact" id="confirmationHint">ยืนยันชื่อผู้เข้าร่วมบนหน้าจอก่อนบันทึกเช็กอิน</div>
+        </div>
+
+        <div class="confirmation-actions">
+          <button class="primary" id="confirmCheckInBtn" type="button">ยืนยันเช็กอิน</button>
+          <button class="secondary" id="cancelCheckInBtn" type="button">ยกเลิก / สแกนใหม่</button>
+        </div>
+      </div>
+
+      <div class="fallback-section">
+        <div class="fallback-header">
+          <div class="fallback-title">ตัวเลือกสำรอง</div>
+          <div class="muted compact">ใช้เมื่อกล้องสแกนไม่ได้หรือไม่มี QR ตรงหน้า</div>
+        </div>
+
+        <div class="fallback-actions">
+          <label class="secondary action-label" for="qrImageInput">สแกนจากรูปภาพ</label>
+          <button class="secondary" id="toggleManualBtn" type="button" aria-expanded="false">กรอกรหัสแทน</button>
+        </div>
+
+        <input id="qrImageInput" type="file" accept="image/*" hidden />
+
+        <form id="manualForm" class="manual-form" hidden>
+          <label for="manualCode">Registration ID</label>
+          <div class="manual-row">
+            <input
+              id="manualCode"
+              type="text"
+              inputmode="text"
+              autocomplete="off"
+              placeholder="กรอกหรือวาง Registration ID"
+            />
+            <button class="primary" id="manualSubmitBtn" type="submit">ยืนยัน</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="system-section">
+        <button class="ghost" id="systemToggleBtn" type="button" aria-expanded="false">ตั้งค่าระบบ</button>
+
+        <div class="system-panel" id="systemPanel" hidden>
+          <div class="fallback-header">
+            <div class="fallback-title">เชื่อมต่อ Apps Script</div>
+            <div class="muted compact">วาง URL ของ Web App ครั้งเดียว ระบบจะสร้างลิงก์พร้อมใช้งานให้ทันที</div>
+          </div>
+
+          <form id="configForm" class="config-form">
+            <label for="apiUrlInput">Apps Script Web App URL</label>
+            <input
+              id="apiUrlInput"
+              type="url"
+              inputmode="url"
+              autocomplete="off"
+              placeholder="https://script.google.com/macros/s/.../exec"
+            />
+
+            <label for="staffNameInput">ชื่อเจ้าหน้าที่หรือจุดสแกน (optional)</label>
+            <input
+              id="staffNameInput"
+              type="text"
+              inputmode="text"
+              autocomplete="off"
+              placeholder="เช่น Registration Desk A"
+            />
+
+            <div class="muted compact">ถ้าระบุ ระบบจะส่งค่านี้ไป backend ตอนเช็กอินและแนบไว้ในลิงก์พร้อมใช้งาน</div>
+
+            <div class="config-actions">
+              <button class="primary" id="saveApiBtn" type="submit">บันทึกและทดสอบ</button>
+              <button class="secondary" id="testApiBtn" type="button">ทดสอบอีกครั้ง</button>
+              <button class="ghost" id="clearApiBtn" type="button">ล้างค่า</button>
+            </div>
+          </form>
+
+          <div id="configMessage" aria-live="polite"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.APP_CONFIG = {
+      apiUrl: "https://script.google.com/macros/s/AKfycbxTQJuA4gm6PponrjamWGKVQR4YqPB9wD9TQIN3CieEcMvMkLYVFoUi-knzT5BrBoOf/exec",
+      staffName: ""
+    };
+  </script>
+  <script src="./app.js"></script>
+</body>
+</html>
