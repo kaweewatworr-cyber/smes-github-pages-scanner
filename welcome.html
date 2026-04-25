@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SMEs Scanner Launch Portal</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="eyebrow">Launch Portal</div>
+      <h1>เปิดระบบเช็กอินผ่านลิงก์เดียว</h1>
+      <p class="lead" id="welcomeLead">หน้านี้จะสร้างลิงก์พร้อมใช้งานให้ทีมหน้างานเปิดจากมือถือหรือแท็บเล็ตได้ทันที</p>
+
+      <div class="system-panel">
+        <div class="fallback-title">ลิงก์ระบบเช็กอิน</div>
+        <label class="sr-only" for="scannerLinkDisplay">ลิงก์ระบบเช็กอิน</label>
+        <input id="scannerLinkDisplay" type="text" readonly />
+
+        <div class="launch-actions">
+          <button class="primary" id="openScannerBtn" type="button">เปิดระบบเช็กอิน</button>
+          <button class="secondary" id="copyScannerBtn" type="button">คัดลอกลิงก์</button>
+        </div>
+
+        <div id="welcomeMessage" aria-live="polite"></div>
+      </div>
+
+      <div class="fallback-section">
+        <div class="fallback-header">
+          <div class="fallback-title">วิธีใช้งาน</div>
+          <div class="muted compact">1. ตั้งค่า Apps Script ที่หน้า scanner หนึ่งครั้ง 2. คัดลอกลิงก์จากหน้านี้ 3. ส่งให้ทีมหน้างานเปิดใช้งานผ่านเว็บได้เลย</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "smesScanner.apiUrl";
+    const STAFF_STORAGE_KEY = "smesScanner.staffName";
+    const scannerLinkDisplay = document.getElementById("scannerLinkDisplay");
+    const openScannerBtn = document.getElementById("openScannerBtn");
+    const copyScannerBtn = document.getElementById("copyScannerBtn");
+    const welcomeLead = document.getElementById("welcomeLead");
+    const welcomeMessage = document.getElementById("welcomeMessage");
+
+    function safeStorageGet(key) {
+      try {
+        return window.localStorage.getItem(key) || "";
+      } catch (_) {
+        return "";
+      }
+    }
+
+    function normalizeValue(value) {
+      return String(value || "").trim();
+    }
+
+    function setWelcomeMessage(text, type) {
+      welcomeMessage.className = text ? `${type}box` : "";
+      welcomeMessage.textContent = text;
+    }
+
+    function buildScannerLink() {
+      const params = new URLSearchParams(window.location.search);
+      const apiUrl = normalizeValue(params.get("apiUrl") || safeStorageGet(STORAGE_KEY));
+      const staffName = normalizeValue(params.get("staffName") || safeStorageGet(STAFF_STORAGE_KEY));
+      const scannerUrl = new URL("./index.html", window.location.href);
+
+      if (!apiUrl) {
+        return "";
+      }
+
+      scannerUrl.searchParams.set("apiUrl", apiUrl);
+
+      if (staffName) {
+        scannerUrl.searchParams.set("staffName", staffName);
+      }
+
+      return scannerUrl.toString();
+    }
+
+    async function copyLink() {
+      const link = scannerLinkDisplay.value;
+
+      if (!link) {
+        setWelcomeMessage("ยังไม่มีลิงก์พร้อมใช้งาน ไปตั้งค่าที่หน้า scanner ก่อน", "warning");
+        return;
+      }
+
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(link);
+        } else {
+          scannerLinkDisplay.focus();
+          scannerLinkDisplay.select();
+          scannerLinkDisplay.setSelectionRange(0, scannerLinkDisplay.value.length);
+          document.execCommand("copy");
+        }
+
+        setWelcomeMessage("คัดลอกลิงก์พร้อมใช้งานแล้ว", "success");
+      } catch (_) {
+        setWelcomeMessage("คัดลอกไม่สำเร็จ ลองกดค้างที่ช่องลิงก์แล้วคัดลอกเอง", "error");
+      }
+    }
+
+    function initializeWelcomePage() {
+      const scannerLink = buildScannerLink();
+
+      if (!scannerLink) {
+        const setupUrl = new URL("./index.html", window.location.href).toString();
+        scannerLinkDisplay.value = setupUrl;
+        openScannerBtn.textContent = "ไปตั้งค่าระบบ";
+        welcomeLead.textContent = "ยังไม่ได้ผูก Apps Script กับหน้าเว็บนี้ ไปที่หน้า scanner เพื่อวาง URL แล้วกลับมาคัดลอกลิงก์พร้อมใช้งาน";
+        setWelcomeMessage("ตอนนี้ปุ่มจะพาไปหน้า scanner เพื่อทำการตั้งค่าครั้งแรก", "warning");
+        return;
+      }
+
+      scannerLinkDisplay.value = scannerLink;
+      openScannerBtn.textContent = "เปิดระบบเช็กอิน";
+      welcomeLead.textContent = "ลิงก์ด้านล่างฝังค่า Apps Script ไว้แล้ว ผู้รับเปิดผ่านเว็บแล้วเริ่มใช้งานได้ทันที";
+      setWelcomeMessage("ลิงก์นี้พร้อมใช้งานแล้ว ส่งให้ทีมหน้างานได้เลย", "success");
+    }
+
+    openScannerBtn.addEventListener("click", () => {
+      window.location.href = scannerLinkDisplay.value;
+    });
+
+    copyScannerBtn.addEventListener("click", copyLink);
+
+    initializeWelcomePage();
+  </script>
+</body>
+</html>
