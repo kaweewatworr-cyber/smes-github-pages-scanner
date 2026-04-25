@@ -19,13 +19,13 @@
 เมื่อหน้าเว็บรู้ `Apps Script Web App URL` แล้ว ระบบจะสร้างลิงก์ใช้งานแบบพร้อมเปิดได้ทันที เช่น
 
 ```text
-https://your-site.github.io/smes-github-pages-scanner/?apiUrl=https%3A%2F%2Fscript.google.com%2Fmacros%2Fs%2Fxxx%2Fexec
+https://kaweewatworr-cyber.github.io/smes-github-pages-scanner/?apiUrl=https%3A%2F%2Fscript.google.com%2Fmacros%2Fs%2Fxxx%2Fexec
 ```
 
 ถ้าต้องการระบุเจ้าหน้าที่หรือจุดสแกนเพิ่ม:
 
 ```text
-https://your-site.github.io/smes-github-pages-scanner/?apiUrl=https%3A%2F%2Fscript.google.com%2Fmacros%2Fs%2Fxxx%2Fexec&staffName=Desk%20A
+https://kaweewatworr-cyber.github.io/smes-github-pages-scanner/?apiUrl=https%3A%2F%2Fscript.google.com%2Fmacros%2Fs%2Fxxx%2Fexec&staffName=Desk%20A
 ```
 
 เมื่อผู้ใช้เปิดลิงก์นี้:
@@ -37,7 +37,7 @@ https://your-site.github.io/smes-github-pages-scanner/?apiUrl=https%3A%2F%2Fscri
 1. สร้าง repository แล้ว push ไฟล์ชุดนี้ขึ้น GitHub
 2. เปิด `Settings > Pages`
 3. เลือก branch ที่ต้องการ publish
-4. รอจนได้ public URL เช่น `https://your-site.github.io/smes-github-pages-scanner/`
+4. รอจนได้ public URL คือ `https://kaweewatworr-cyber.github.io/smes-github-pages-scanner/`
 5. เปิดหน้าเว็บนั้นแล้ววาง `Apps Script Web App URL` ที่หน้า `index.html`
 6. ใช้ปุ่ม `คัดลอกลิงก์` หรือ `แชร์ลิงก์` เพื่อส่งต่อให้ทีมหน้างาน
 
@@ -55,7 +55,7 @@ https://your-site.github.io/smes-github-pages-scanner/?apiUrl=https%3A%2F%2Fscri
 
 ค่าใหม่ที่เกี่ยวกับการใช้งานผ่านเว็บ:
 - `frontendBaseUrl`
-  ใส่ URL ของ GitHub Pages เช่น `https://your-site.github.io/smes-github-pages-scanner/`
+  ใส่ URL ของ GitHub Pages เช่น `https://kaweewatworr-cyber.github.io/smes-github-pages-scanner/`
 - `checkinWebAppUrl`
   optional สำหรับ override เป็นลิงก์หน้า scanner แบบตายตัว ถ้าปล่อยว่าง ระบบจะพยายามสร้างลิงก์จาก `frontendBaseUrl` + URL ของ Apps Script ที่ deploy อยู่
 
@@ -77,8 +77,8 @@ https://your-site.github.io/smes-github-pages-scanner/?apiUrl=https%3A%2F%2Fscri
   "ok": true,
   "apiName": "Adaptive Intelligence 2026 Check-in API",
   "eventName": "Adaptive Intelligence 2026",
-  "scannerBaseUrl": "https://your-site.github.io/smes-github-pages-scanner/",
-  "scannerUrl": "https://your-site.github.io/smes-github-pages-scanner/?apiUrl=https%3A%2F%2Fscript.google.com%2Fmacros%2Fs%2Fxxx%2Fexec",
+  "scannerBaseUrl": "https://kaweewatworr-cyber.github.io/smes-github-pages-scanner/",
+  "scannerUrl": "https://kaweewatworr-cyber.github.io/smes-github-pages-scanner/?apiUrl=https%3A%2F%2Fscript.google.com%2Fmacros%2Fs%2Fxxx%2Fexec",
   "actions": ["status", "checkin", "lookup"]
 }
 ```
